@@ -10,7 +10,8 @@ src="webjars/bootstrap/4.0.0-2/js/bootstrap.min.js"></script>
  src="webjars/jquery/3.6.0/jquery.min.js"></script>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1256">
-<title>Ajouter Livre</title>
+<title th:if="${mode=='new'}">Ajouter Livre</title>
+<title th:if="${mode=='edit'}">Modifier Livre</title>
 </head>
 <body>
 <!-- -->
@@ -25,11 +26,10 @@ th:replace="navbar"></div>
 
 
 <form action="saveLivre" method="post">
- <div class="form-group">
- <label class="control-label">id  :</label>
+
  <input type="text" name="idLivre" class="form-control" th:value="${livre.idLivre}" hidden/>
- </div>
- <input type="hidden" name="page" th:value="${currentPage}" >
+ 
+ <input  name="page" th:value="${currentPage}" >
   <input type="hidden" name="size"  th:value="${size}" >
  <div class="form-group">
  <label class="control-label">titre  :</label>
@@ -49,7 +49,7 @@ th:replace="navbar"></div>
  </div>
   <div class="form-group">
  <label class="control-label">type Livre :</label>
-  <select class="custom-select" name="type" th:if="${mode=='new'}">
+ <!-- <select class="custom-select" name="type" th:if="${mode=='new'}">
  
   <option selected>selectionner un type</option>
 <option th:each="t : ${types}"
@@ -57,8 +57,9 @@ th:replace="navbar"></div>
           th:text="${t.nomType}"
           >
   </option>
-</select>
- <select class="custom-select" name="type" th:if="${mode=='edit'}">
+  th:if="${mode=='edit'}
+</select>-->
+ <select class="custom-select" name="type" >
  
   <option selected>selectionner un type</option>
 <option th:each="t : ${types}"

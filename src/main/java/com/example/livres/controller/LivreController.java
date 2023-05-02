@@ -1,6 +1,5 @@
 package com.example.livres.controller;
 
-import java.net.http.HttpClient.Redirect;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,38 +34,56 @@ TypeService typeService;
 @RequestMapping("/showCreate")
 public String showCreate(ModelMap modelMap)
 {
+	
+	
 	List<TypeLivre> types=typeService.getAllTypes();
+	Livre livre = new Livre();
+	TypeLivre type = new TypeLivre();
+	type = types.get(0);
+	livre.setType(type);
+	
 	modelMap.addAttribute("types",types);
-    modelMap.addAttribute("livre", new Livre());
+    modelMap.addAttribute("livre", livre);
     modelMap.addAttribute("mode", "new");
    
     return "formLivre";
 }
+
+
 @RequestMapping("/saveLivre")
 public String saveLivre(@Valid Livre livre,
  BindingResult bindingResult,ModelMap modelMap,
  @RequestParam (name="page",defaultValue = "0") int page,
-	@RequestParam (name="size",defaultValue = "4") int size
+ @RequestParam (name="size",defaultValue = "4") int size
 		)
 {
-	System.out.println(livre.toString() + "page = "+page + "size = "+size);
 
 if (bindingResult.hasErrors()) {
+
 	List<TypeLivre> types=typeService.getAllTypes();
 	modelMap.addAttribute("types",types);
+	
+	int currentPage ;
 	if(livre.getIdLivre()==null) {
 		 modelMap.addAttribute("mode", "new");
+		 
+		 currentPage = livreService.getAllLivres().size()/size;
 	}else {
 		modelMap.addAttribute("mode", "edit");
+		currentPage =page;
 	}
 	
-	System.out.println(modelMap.getAttribute("page"));
+	Page<Livre> livres = livreService.getAllLivresParPage(currentPage, 4);
+	modelMap.addAttribute("pages", new int[livres.getTotalPages()]);
+	modelMap.addAttribute("currentPage", currentPage);
+	modelMap.addAttribute("size", 4);
+	modelMap.addAttribute("livres", livres);	
 	
 	 return "formLivre";
 }
 int currentPage =page; 
 if(livre.getIdLivre()==null) {
-	currentPage = livreService.getAllLivres().size()/4;}
+	currentPage = livreService.getAllLivres().size()/size;}
 livreService.saveLivre(livre);
 
 
@@ -75,9 +92,8 @@ modelMap.addAttribute("pages", new int[livres.getTotalPages()]);
 modelMap.addAttribute("currentPage", currentPage);
 modelMap.addAttribute("size", 4);
 modelMap.addAttribute("livres", livres);
-//return "listeLivres";
-//return "redirect:/ListeLivres";
-return ("redirect:/ListeLivres?page="+currentPage+"&size="+size);
+return "listeLivres";
+//return ("redirect:/ListeLivres?page="+currentPage+"&size="+size);
 }
 
 
@@ -114,12 +130,11 @@ if(livres.getNumberOfElements()==0) {
 }
 modelMap.addAttribute("livres", livres);
 modelMap.addAttribute("pages", new int[livres.getTotalPages()]);
-
-
 modelMap.addAttribute("currentPage",page);
 modelMap.addAttribute("size", size);
 //return "listeLivres";
 return ("redirect:/ListeLivres?page="+page+"&size="+size);
+
 }
 
 
@@ -129,6 +144,7 @@ public String editerProduit(@RequestParam("id") Long id,ModelMap modelMap,
 		@RequestParam (name="size", defaultValue = "4") int size)
 {
 Livre l= livreService.getLivre(id);
+
 modelMap.addAttribute("livre", l);
 modelMap.addAttribute("mode", "edit");
 List<TypeLivre> types=typeService.getAllTypes();
